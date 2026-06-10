@@ -1,0 +1,37 @@
+# mcp-sploit sandbox
+#
+#   docker compose up -d
+#   docker compose exec mcp-sploit mcp-sploit
+#
+# Inside the console:
+#   use auxiliary/scanner/mcp_enum
+#   set TARGET http://vulnerable-mcp:8765
+#   run
+#
+#   use exploit/mcp/file_exfiltration
+#   set TARGET http://vulnerable-mcp:8765
+#   check
+#   exploit
+#
+# Purple-team mode: point TARGET at an mcp-aegis gateway in front of
+# vulnerable-mcp instead, and re-run the same exploit — see README.
+
+services:
+  vulnerable-mcp:
+    build: ./target_server
+    ports:
+      - "8765:8765"
+    networks:
+      - mcp-net
+
+  mcp-sploit:
+    build: .
+    depends_on:
+      - vulnerable-mcp
+    networks:
+      - mcp-net
+    command: tail -f /dev/null
+
+networks:
+  mcp-net:
+    driver: bridge
