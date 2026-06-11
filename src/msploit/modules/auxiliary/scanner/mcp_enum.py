@@ -10,6 +10,7 @@ class MCPEnum(AuxiliaryModule):
     name = "auxiliary/scanner/mcp_enum"
     description = "Enumerate tools exposed by an MCP server via tools/list and flag high-risk tool names."
     author = "Prasanna Kumar Surendran"
+    references = ("ATT&CK T1518 - Software Discovery",)
     options = (TARGET_OPTION,)
 
     def run(self) -> str:

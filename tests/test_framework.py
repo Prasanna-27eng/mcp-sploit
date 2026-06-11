@@ -16,7 +16,11 @@ def registry() -> ModuleRegistry:
 def test_module_loading(registry: ModuleRegistry) -> None:
     assert "exploit/mcp/file_exfiltration" in registry.modules
     assert "exploit/mcp/shell_exec" in registry.modules
+    assert "exploit/mcp/prompt_injection" in registry.modules
+    assert "exploit/mcp/tool_schema_abuse" in registry.modules
     assert "auxiliary/scanner/mcp_enum" in registry.modules
+    assert "auxiliary/scanner/mcp_auth_bypass" in registry.modules
+    assert "auxiliary/scanner/mcp_policy_probe" in registry.modules
 
 
 def test_search(registry: ModuleRegistry) -> None:
@@ -65,3 +69,73 @@ def test_check_does_not_send_exploit_payload(registry: ModuleRegistry, monkeypat
 
     assert module.check() is True
     assert calls == ["tools/list"]
+
+
+def test_prompt_injection_check(registry: ModuleRegistry, monkeypatch: pytest.MonkeyPatch) -> None:
+    module = registry.get_module("exploit/mcp/prompt_injection")
+    module.set_option("TARGET", "http://localhost:8765")
+
+    class FakeClient:
+        def list_tools(self):
+            return [{"name": "web_fetch"}, {"name": "execute_shell"}]
+
+        def call_tool(self, name, arguments=None):
+            raise AssertionError("check() must not call tools/call")
+
+    monkeypatch.setattr(module, "_client", lambda: FakeClient())
+
+    assert module.check() is True
+
+
+def test_tool_schema_abuse_check(registry: ModuleRegistry, monkeypatch: pytest.MonkeyPatch) -> None:
+    module = registry.get_module("exploit/mcp/tool_schema_abuse")
+    module.set_option("TARGET", "http://localhost:8765")
+
+    class FakeClient:
+        def list_tools(self):
+            return [
+                {"name": "search_logs", "inputSchema": {"properties": {"query": {"type": "string"}}}},
+            ]
+
+        def call_tool(self, name, arguments=None):
+            raise AssertionError("check() must not call tools/call")
+
+    monkeypatch.setattr(module, "_client", lambda: FakeClient())
+
+    assert module.check() is True
+
+
+def test_mcp_auth_bypass_run(registry: ModuleRegistry, monkeypatch: pytest.MonkeyPatch) -> None:
+    module = registry.get_module("auxiliary/scanner/mcp_auth_bypass")
+    module.set_option("TARGET", "http://localhost:8765")
+
+    class FakeClient:
+        def initialize(self):
+            return {"result": {"serverInfo": {"name": "vulnerable-mcp"}}}
+
+        def list_tools(self):
+            return [{"name": "read_file"}, {"name": "execute_shell"}]
+
+    monkeypatch.setattr(module, "_client", lambda: FakeClient())
+
+    output = module.run()
+    assert "VULNERABLE" in output
+
+
+def test_mcp_policy_probe_run(registry: ModuleRegistry, monkeypatch: pytest.MonkeyPatch) -> None:
+    module = registry.get_module("auxiliary/scanner/mcp_policy_probe")
+    module.set_option("TARGET", "http://localhost:8766")
+
+    from msploit.mcp_client import MCPError
+
+    class FakeClient:
+        def call_tool(self, name, arguments=None):
+            if name == "execute_shell":
+                raise MCPError(-32600, "Shell execution tools are blocked")
+            return {"content": [{"type": "text", "text": "ok"}]}
+
+    monkeypatch.setattr(module, "_client", lambda: FakeClient())
+
+    output = module.run()
+    assert "[BLOCKED]" in output
+    assert "[ALLOWED]" in output
