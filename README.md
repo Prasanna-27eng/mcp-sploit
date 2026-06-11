@@ -1,13 +1,40 @@
 # mcp-sploit
 
-**A Metasploit-style exploitation framework for testing MCP servers and MCP security gateways.**
+**A Metasploit-style exploitation framework for the Model Context Protocol (MCP) — interactive `use`/`set`/`check`/`exploit` workflow for testing MCP servers and MCP security gateways.**
 
+[![CI](https://github.com/Prasanna-27eng/mcp-sploit/actions/workflows/ci.yml/badge.svg)](https://github.com/Prasanna-27eng/mcp-sploit/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 
 > ⚠️ For authorized security testing only. Use against your own infrastructure,
 > the bundled `target_server` sandbox, or systems you have explicit permission
 > to test. Never run modules against production systems.
+
+---
+
+## Why mcp-sploit?
+
+MCP servers are the new "tool access layer" for AI agents — and they ship
+with the same class of bugs as any new protocol: missing authentication,
+unvalidated input, and a brand-new attack class unique to LLM agents:
+**indirect prompt injection via tool responses** (a tool returns
+attacker-controlled text that the agent treats as trusted instructions).
+
+Most existing MCP security tooling (e.g.
+[`mcp-scan`](https://github.com/invariantlabs-ai/mcp-scan)) is a **static
+scanner** — it inspects tool descriptions/configs for known-bad patterns.
+`mcp-sploit` takes the **offensive/dynamic** approach: an interactive
+`msfconsole`-style console with real exploit modules that actually call
+`tools/list` / `tools/call` against a live target, plus a `check()` step
+that's safe to run before firing the real payload. Point `TARGET` at a raw
+MCP server to find bugs, or at an
+[`mcp-aegis`](https://github.com/Prasanna-27eng/mcp-aegis) gateway to run the
+exact same modules as a **purple-team regression suite**.
+
+Relevant background reading: [OWASP MCP Top 10](https://github.com/OWASP/www-project-mcp-top-10),
+[MITRE ATLAS](https://atlas.mitre.org/) (adversarial ML tactics/techniques —
+see `AML.T0051` LLM Prompt Injection, referenced by the
+`exploit/mcp/prompt_injection` module).
 
 ---
 

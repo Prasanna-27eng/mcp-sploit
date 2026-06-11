@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software in your research, please cite it as below."
+title: "mcp-sploit: A Metasploit-style exploitation framework for the Model Context Protocol"
+abstract: >
+  An interactive, msfconsole-style framework for security-testing Model
+  Context Protocol (MCP) servers and MCP security gateways. Includes modules
+  for unauthenticated tool execution, file exfiltration, indirect prompt
+  injection (tool response poisoning), tool schema/type-confusion abuse, and
+  gateway policy fingerprinting, plus an intentionally vulnerable sandbox
+  server for reproducible testing.
+authors:
+  - family-names: "Surendran"
+    given-names: "Prasanna Kumar"
+repository-code: "https://github.com/Prasanna-27eng/mcp-sploit"
+url: "https://github.com/Prasanna-27eng/mcp-sploit"
+license: MIT
+version: 0.2.0
+date-released: "2026-06-11"
+keywords:
+  - "Model Context Protocol"
+  - "MCP security"
+  - "AI agent security"
+  - "prompt injection"
+  - "tool poisoning"
+  - "LLM security"
+  - "penetration testing"
+  - "purple team"
