@@ -12,6 +12,10 @@
 
 ---
 
+![mcp-sploit demo: enumerating an MCP server, exfiltrating a file, and detecting indirect prompt injection](demo.gif)
+
+---
+
 ## Why mcp-sploit?
 
 MCP servers are the new "tool access layer" for AI agents — and they ship
